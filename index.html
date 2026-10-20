@@ -41,14 +41,44 @@
       gap: 1.5rem;
     }
 
+    /* Encabezado */
     header {
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.5rem;
     }
 
     header h1 {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: -0.025em;
+    }
+
+    .btn-admin-auth {
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-admin-auth:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-admin-auth.active {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
     }
 
     /* Tarjeta destacada */
@@ -123,6 +153,15 @@
       align-items: center;
     }
 
+    .admin-badge {
+      font-size: 0.75rem;
+      background: #e0e7ff;
+      color: var(--primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
     .birthday-list {
       list-style: none;
       display: flex;
@@ -180,17 +219,31 @@
       border: none;
       color: #94a3b8;
       cursor: pointer;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       padding: 0.2rem;
       line-height: 1;
       border-radius: 6px;
+      display: none; /* Se oculta a visitantes */
     }
 
     .btn-delete:hover {
       color: #ef4444;
     }
 
-    /* Formulario */
+    /* Mostrar botón borrar si es admin */
+    body.is-admin .btn-delete {
+      display: inline-block;
+    }
+
+    /* Formulario admin */
+    #admin-add-section {
+      display: none; /* Se oculta a visitantes */
+    }
+
+    body.is-admin #admin-add-section {
+      display: block;
+    }
+
     form {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
@@ -233,9 +286,93 @@
       font-size: 0.9rem;
     }
 
+    /* Modal de contraseña */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-input {
+      width: 100%;
+      margin-bottom: 1rem;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    .modal-btn.primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .modal-btn.secondary {
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
     @media (max-width: 480px) {
       form {
         grid-template-columns: 1fr;
+      }
+      header h1 {
+        font-size: 1.35rem;
       }
     }
   </style>
@@ -244,28 +381,31 @@
 
   <div class="container">
     <header>
-      <h1>Calendario de Cumpleaños</h1>
+      <h1>Cumpleaños 🎉</h1>
+      <button id="admin-toggle-btn" class="btn-admin-auth" onclick="handleAuthClick()">
+        <span>🔒</span>
+        <span id="admin-btn-label">Acceso Admin</span>
+      </button>
     </header>
 
     <!-- Destacado: Próximo cumpleaños -->
-    <div id="hero-card" class="hero-card">
-      <!-- Se genera dinámicamente -->
-    </div>
+    <div id="hero-card" class="hero-card"></div>
 
     <!-- Lista completa ordenada -->
     <div class="section-card">
       <div class="section-title">
-        <span>Próximas fechas</span>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>Próximas fechas</span>
+          <span id="admin-badge" class="admin-badge" style="display: none;">Modo Edición</span>
+        </div>
         <span id="counter" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;"></span>
       </div>
-      <ul id="birthday-list" class="birthday-list">
-        <!-- Elementos generados dinámicamente -->
-      </ul>
+      <ul id="birthday-list" class="birthday-list"></ul>
     </div>
 
-    <!-- Agregar persona -->
-    <div class="section-card">
-      <div class="section-title">Agregar cumpleaños</div>
+    <!-- Formulario visible sólo para el admin -->
+    <div id="admin-add-section" class="section-card">
+      <div class="section-title">Dar de alta cumpleaños</div>
       <form id="add-form">
         <input type="text" id="name" placeholder="Nombre completo" required>
         <input type="date" id="birthdate" required>
@@ -274,9 +414,25 @@
     </div>
   </div>
 
+  <!-- Modal de ingreso de contraseña -->
+  <div id="password-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-title">Acceso Administrador</div>
+      <p class="modal-text">Ingresa la contraseña para editar o eliminar fechas.</p>
+      <input type="password" id="admin-password-input" class="modal-input" placeholder="Contraseña">
+      <div id="password-error" class="error-msg">Contraseña incorrecta</div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closePasswordModal()">Cancelar</button>
+        <button class="modal-btn primary" onclick="verifyPassword()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Lista inicial de prueba si no hay datos guardados
- 	const defaultBirthdays = [
+    // Configura aquí la contraseña de administrador
+    const ADMIN_PASSWORD = "Woody2030";
+
+    const defaultBirthdays = [
       { name: "Carla Marino", date: "2000-05-05" },
       { name: "Adrian A. Gomez", date: "2000-05-10" },
       { name: "Sol Prozzillo", date: "2000-05-20" },
@@ -298,11 +454,80 @@
     ];
 
     let birthdays = JSON.parse(localStorage.getItem("birthdays")) || defaultBirthdays;
+    let isAdmin = sessionStorage.getItem("isAdmin") === "true";
 
     const months = [
       "enero", "febrero", "marzo", "abril", "mayo", "junio",
       "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     ];
+
+    function updateAdminUI() {
+      const body = document.body;
+      const adminBtn = document.getElementById("admin-toggle-btn");
+      const adminBtnLabel = document.getElementById("admin-btn-label");
+      const adminBadge = document.getElementById("admin-badge");
+
+      if (isAdmin) {
+        body.classList.add("is-admin");
+        adminBtn.classList.add("active");
+        adminBtn.querySelector("span").textContent = "🔓";
+        adminBtnLabel.textContent = "Salir de Admin";
+        adminBadge.style.display = "inline-block";
+      } else {
+        body.classList.remove("is-admin");
+        adminBtn.classList.remove("active");
+        adminBtn.querySelector("span").textContent = "🔒";
+        adminBtnLabel.textContent = "Acceso Admin";
+        adminBadge.style.display = "none";
+      }
+    }
+
+    function handleAuthClick() {
+      if (isAdmin) {
+        // Cerrar sesión
+        isAdmin = false;
+        sessionStorage.removeItem("isAdmin");
+        updateAdminUI();
+        render();
+      } else {
+        // Abrir modal de contraseña
+        openPasswordModal();
+      }
+    }
+
+    function openPasswordModal() {
+      const modal = document.getElementById("password-modal");
+      const input = document.getElementById("admin-password-input");
+      const error = document.getElementById("password-error");
+      input.value = "";
+      error.style.display = "none";
+      modal.classList.add("open");
+      input.focus();
+    }
+
+    function closePasswordModal() {
+      document.getElementById("password-modal").classList.remove("open");
+    }
+
+    function verifyPassword() {
+      const input = document.getElementById("admin-password-input");
+      const error = document.getElementById("password-error");
+
+      if (input.value === ADMIN_PASSWORD) {
+        isAdmin = true;
+        sessionStorage.setItem("isAdmin", "true");
+        closePasswordModal();
+        updateAdminUI();
+        render();
+      } else {
+        error.style.display = "block";
+      }
+    }
+
+    // Permitir enviar la clave con Enter
+    document.getElementById("admin-password-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") verifyPassword();
+    });
 
     function calculateNextBirthday(dateString) {
       const today = new Date();
@@ -332,14 +557,13 @@
       if (birthdays.length === 0) {
         hero.innerHTML = `
           <div class="hero-name">Sin cumpleaños</div>
-          <p class="hero-date">Agrega amigos o familiares abajo.</p>
+          <p class="hero-date">${isAdmin ? "Agrega fechas en el panel inferior." : "No hay registros cargados."}</p>
         `;
         list.innerHTML = `<li class="empty-state">No hay registros cargados.</li>`;
         counter.textContent = "0 personas";
         return;
       }
 
-      // Procesar y ordenar según los días faltantes
       const processed = birthdays.map((item, index) => {
         const info = calculateNextBirthday(item.date);
         return { ...item, originalIndex: index, ...info };
@@ -349,12 +573,10 @@
 
       const next = processed[0];
 
-      // Formato legible para "cuánto falta"
       let badgeText = `Faltan ${next.diffDays} días`;
       if (next.diffDays === 0) badgeText = "¡Es hoy! 🥳";
       else if (next.diffDays === 1) badgeText = "¡Es mañana!";
 
-      // Actualizar tarjeta destacada
       hero.innerHTML = `
         <div class="hero-subtitle">Próximo cumpleaños</div>
         <div class="hero-name">${next.name}</div>
@@ -364,7 +586,6 @@
 
       counter.textContent = `${processed.length} personas`;
 
-      // Renderizar listado de fechas
       list.innerHTML = "";
       processed.forEach(item => {
         let tag = item.diffDays === 0 ? "¡Hoy! 🎉" : item.diffDays === 1 ? "Mañana" : `En ${item.diffDays} días`;
@@ -378,7 +599,7 @@
           </div>
           <div class="tag-container">
             <span class="days-tag">${tag}</span>
-            <button class="btn-delete" title="Eliminar" onclick="removeBirthday(${item.originalIndex})">×</button>
+            ${isAdmin ? `<button class="btn-delete" title="Eliminar" onclick="removeBirthday(${item.originalIndex})">×</button>` : ""}
           </div>
         `;
         list.appendChild(li);
@@ -386,13 +607,18 @@
     }
 
     function removeBirthday(index) {
-      birthdays.splice(index, 1);
-      localStorage.setItem("birthdays", JSON.stringify(birthdays));
-      render();
+      if (!isAdmin) return;
+      if (confirm(`¿Seguro que deseas eliminar a ${birthdays[index].name}?`)) {
+        birthdays.splice(index, 1);
+        localStorage.setItem("birthdays", JSON.stringify(birthdays));
+        render();
+      }
     }
 
     document.getElementById("add-form").addEventListener("submit", (e) => {
       e.preventDefault();
+      if (!isAdmin) return;
+
       const nameInput = document.getElementById("name");
       const dateInput = document.getElementById("birthdate");
 
@@ -407,6 +633,7 @@
       render();
     });
 
+    updateAdminUI();
     render();
   </script>
 </body>
