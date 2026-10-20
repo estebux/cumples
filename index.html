@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Próximos Cumpleaños</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #ec4899;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 18px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    /* Tarjeta destacada */
+    .hero-card {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 2.2rem;
+      text-align: center;
+      box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "🎂";
+      position: absolute;
+      right: -10px;
+      bottom: -15px;
+      font-size: 7rem;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .hero-subtitle {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-name {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-date {
+      font-size: 1.05rem;
+      opacity: 0.95;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(8px);
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* Lista secundaria */
+    .section-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .birthday-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .birthday-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      background: #f1f5f9;
+      transition: background 0.15s ease;
+    }
+
+    .birthday-item:hover {
+      background: #e2e8f0;
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .person-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .person-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .tag-container {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .days-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: #e0e7ff;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.2rem;
+      line-height: 1;
+      border-radius: 6px;
+    }
+
+    .btn-delete:hover {
+      color: #ef4444;
+    }
+
+    /* Formulario */
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    input {
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    button.btn-add {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.65rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    button.btn-add:hover {
+      background: var(--primary-hover);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 1.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Calendario de Cumpleaños</h1>
+    </header>
+
+    <!-- Destacado: Próximo cumpleaños -->
+    <div id="hero-card" class="hero-card">
+      <!-- Se genera dinámicamente -->
+    </div>
+
+    <!-- Lista completa ordenada -->
+    <div class="section-card">
+      <div class="section-title">
+        <span>Próximas fechas</span>
+        <span id="counter" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;"></span>
+      </div>
+      <ul id="birthday-list" class="birthday-list">
+        <!-- Elementos generados dinámicamente -->
+      </ul>
+    </div>
+
+    <!-- Agregar persona -->
+    <div class="section-card">
+      <div class="section-title">Agregar cumpleaños</div>
+      <form id="add-form">
+        <input type="text" id="name" placeholder="Nombre completo" required>
+        <input type="date" id="birthdate" required>
+        <button type="submit" class="btn-add">Agregar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Lista inicial de prueba si no hay datos guardados
+ 	const defaultBirthdays = [
+      { name: "Carla Marino", date: "2000-05-05" },
+      { name: "Adrian A. Gomez", date: "2000-05-10" },
+      { name: "Sol Prozzillo", date: "2000-05-20" },
+      { name: "Juan Pablo Mazur", date: "2000-06-18" },
+      { name: "Juan Alberto Cordero", date: "2000-06-18" },
+      { name: "Andres Asalino", date: "2000-06-24" },
+      { name: "Marcos LaPira", date: "2000-07-04" },
+      { name: "Sol Chaves", date: "2000-07-14" },
+      { name: "Esteban Pardo", date: "2000-08-25" },
+      { name: "Mariela San Agustin", date: "2000-09-03" },
+      { name: "Flavia Hermosilla", date: "2000-09-13" },
+      { name: "Marcela Bertani", date: "2000-10-08" },
+      { name: "Ariel Zerda", date: "2000-10-10" },
+      { name: "Lara Belgorodsky", date: "2000-10-27" },
+      { name: "Camilo Bernardi", date: "2000-10-24" },
+      { name: "Romina Di Marco", date: "2000-11-18" },
+      { name: "Joaquin Marques", date: "2000-11-21" },
+      { name: "Jorge Doval", date: "2000-12-20" }
+    ];
+
+    let birthdays = JSON.parse(localStorage.getItem("birthdays")) || defaultBirthdays;
+
+    const months = [
+      "enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+
+    function calculateNextBirthday(dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const parts = dateString.split("-");
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      let nextDate = new Date(today.getFullYear(), month, day);
+
+      if (nextDate < today) {
+        nextDate.setFullYear(today.getFullYear() + 1);
+      }
+
+      const diffTime = nextDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      return { nextDate, diffDays, day, month };
+    }
+
+    function render() {
+      const hero = document.getElementById("hero-card");
+      const list = document.getElementById("birthday-list");
+      const counter = document.getElementById("counter");
+
+      if (birthdays.length === 0) {
+        hero.innerHTML = `
+          <div class="hero-name">Sin cumpleaños</div>
+          <p class="hero-date">Agrega amigos o familiares abajo.</p>
+        `;
+        list.innerHTML = `<li class="empty-state">No hay registros cargados.</li>`;
+        counter.textContent = "0 personas";
+        return;
+      }
+
+      // Procesar y ordenar según los días faltantes
+      const processed = birthdays.map((item, index) => {
+        const info = calculateNextBirthday(item.date);
+        return { ...item, originalIndex: index, ...info };
+      });
+
+      processed.sort((a, b) => a.diffDays - b.diffDays);
+
+      const next = processed[0];
+
+      // Formato legible para "cuánto falta"
+      let badgeText = `Faltan ${next.diffDays} días`;
+      if (next.diffDays === 0) badgeText = "¡Es hoy! 🥳";
+      else if (next.diffDays === 1) badgeText = "¡Es mañana!";
+
+      // Actualizar tarjeta destacada
+      hero.innerHTML = `
+        <div class="hero-subtitle">Próximo cumpleaños</div>
+        <div class="hero-name">${next.name}</div>
+        <div class="hero-date">${next.day} de ${months[next.month]}</div>
+        <div class="hero-badge">${badgeText}</div>
+      `;
+
+      counter.textContent = `${processed.length} personas`;
+
+      // Renderizar listado de fechas
+      list.innerHTML = "";
+      processed.forEach(item => {
+        let tag = item.diffDays === 0 ? "¡Hoy! 🎉" : item.diffDays === 1 ? "Mañana" : `En ${item.diffDays} días`;
+
+        const li = document.createElement("li");
+        li.className = "birthday-item";
+        li.innerHTML = `
+          <div class="info-group">
+            <span class="person-name">${item.name}</span>
+            <span class="person-date">${item.day} de ${months[item.month]}</span>
+          </div>
+          <div class="tag-container">
+            <span class="days-tag">${tag}</span>
+            <button class="btn-delete" title="Eliminar" onclick="removeBirthday(${item.originalIndex})">×</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function removeBirthday(index) {
+      birthdays.splice(index, 1);
+      localStorage.setItem("birthdays", JSON.stringify(birthdays));
+      render();
+    }
+
+    document.getElementById("add-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById("name");
+      const dateInput = document.getElementById("birthdate");
+
+      birthdays.push({
+        name: nameInput.value.trim(),
+        date: dateInput.value
+      });
+
+      localStorage.setItem("birthdays", JSON.stringify(birthdays));
+      nameInput.value = "";
+      dateInput.value = "";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
