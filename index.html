@@ -223,21 +223,19 @@
       padding: 0.2rem;
       line-height: 1;
       border-radius: 6px;
-      display: none; /* Se oculta a visitantes */
+      display: none;
     }
 
     .btn-delete:hover {
       color: #ef4444;
     }
 
-    /* Mostrar botón borrar si es admin */
     body.is-admin .btn-delete {
       display: inline-block;
     }
 
-    /* Formulario admin */
     #admin-add-section {
-      display: none; /* Se oculta a visitantes */
+      display: none;
     }
 
     body.is-admin #admin-add-section {
@@ -286,7 +284,6 @@
       font-size: 0.9rem;
     }
 
-    /* Modal de contraseña */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -388,10 +385,8 @@
       </button>
     </header>
 
-    <!-- Destacado: Próximo cumpleaños -->
     <div id="hero-card" class="hero-card"></div>
 
-    <!-- Lista completa ordenada -->
     <div class="section-card">
       <div class="section-title">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -403,7 +398,6 @@
       <ul id="birthday-list" class="birthday-list"></ul>
     </div>
 
-    <!-- Formulario visible sólo para el admin -->
     <div id="admin-add-section" class="section-card">
       <div class="section-title">Dar de alta cumpleaños</div>
       <form id="add-form">
@@ -414,7 +408,6 @@
     </div>
   </div>
 
-  <!-- Modal de ingreso de contraseña -->
   <div id="password-modal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-title">Acceso Administrador</div>
@@ -428,9 +421,8 @@
     </div>
   </div>
 
-  <script>
-    // Configura aquí la contraseña de administrador
-    const ADMIN_PASSWORD = "Woody2030";
+  <script>    
+    const ADMIN_HASH = "cb0c22afd7e5c69de6ab6bed37d5a2fef09a56ad0e0ece8a67612b0df1ed5150";
 
     const defaultBirthdays = [
       { name: "Carla Marino", date: "2000-05-05" },
@@ -461,6 +453,15 @@
       "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     ];
 
+    // Función auxiliar para calcular el hash SHA-256 en el navegador
+    async function sha256(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
     function updateAdminUI() {
       const body = document.body;
       const adminBtn = document.getElementById("admin-toggle-btn");
@@ -484,13 +485,11 @@
 
     function handleAuthClick() {
       if (isAdmin) {
-        // Cerrar sesión
         isAdmin = false;
         sessionStorage.removeItem("isAdmin");
         updateAdminUI();
         render();
       } else {
-        // Abrir modal de contraseña
         openPasswordModal();
       }
     }
@@ -509,11 +508,13 @@
       document.getElementById("password-modal").classList.remove("open");
     }
 
-    function verifyPassword() {
+    async function verifyPassword() {
       const input = document.getElementById("admin-password-input");
       const error = document.getElementById("password-error");
 
-      if (input.value === ADMIN_PASSWORD) {
+      const enteredHash = await sha256(input.value);
+
+      if (enteredHash === ADMIN_HASH) {
         isAdmin = true;
         sessionStorage.setItem("isAdmin", "true");
         closePasswordModal();
@@ -524,7 +525,6 @@
       }
     }
 
-    // Permitir enviar la clave con Enter
     document.getElementById("admin-password-input").addEventListener("keypress", (e) => {
       if (e.key === "Enter") verifyPassword();
     });
